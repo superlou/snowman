@@ -26,7 +26,7 @@ class ImageFeed(Feed):
 if __name__ == "__main__":
     os.environ["GST_DEBUG"] = '2'
     Gst.init(None)
-    feed = ImageFeed('feed3', '../media/lower_third2.png', 1280, 720, '30/1')
+    feed = ImageFeed('feed3', '../media/nature.png', 1280, 720, '30/1')
     feed.play()
 
     while 1:
