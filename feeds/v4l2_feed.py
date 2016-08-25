@@ -2,7 +2,7 @@ import gi
 import os
 import sys
 import time
-from feed import Feed
+from .feed import Feed
 gi.require_version('Gst', '1.0')
 from gi.repository import Gst
 

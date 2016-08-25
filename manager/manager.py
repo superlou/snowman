@@ -14,6 +14,35 @@ class Manager(object):
 
         self.snowmix.recv(4096)  # Clear out version string
 
+        self.preview = 1
+        self.program = 2
+        self.update_main_bus()
+
+    def set_preview(self, feed):
+        self.preview = feed
+        self.update_main_bus()
+
+    def set_program(self, feed=None):
+        if feed:
+            self.program = feed
+        else:
+            self.program, self.preview = self.preview, self.program
+
+        self.update_main_bus()
+
+    def update_main_bus(self):
+        self.send_command('vfeed alpha {0} 0'.format(self.preview))
+        self.send_command('vfeed alpha {0} 1'.format(self.program))
+        self.send_command('tcl eval SetFeedToOverlay {0} {1}'.format(self.program, self.preview))
+
+    def send_command(self, command, responds=False):
+        self.snowmix.send(bytearray(command + '\n','utf-8'))
+
+        if responds:
+            return self.receive_all()
+        else:
+            return None
+
     def get_feed_ids(self):
         self.snowmix.send(b'feed list\n')
         response = self.receive_all()
@@ -32,7 +61,7 @@ class Manager(object):
 
             result += data.decode('utf-8')
 
-            if result.endswith('STAT: \n'):
+            if result.endswith(('STAT: \n', 'MSG: \n')):
                 break
 
         return result
