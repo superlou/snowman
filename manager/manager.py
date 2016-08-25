@@ -1,5 +1,7 @@
 import socket
 import re
+import time
+import math
 
 
 class Manager(object):
@@ -14,6 +16,7 @@ class Manager(object):
 
         self.snowmix.recv(4096)  # Clear out version string
 
+        self.framerate = 30.
         self.preview = 1
         self.program = 2
         self.update_main_bus()
@@ -34,6 +37,13 @@ class Manager(object):
         self.send_command('vfeed alpha {0} 0'.format(self.preview))
         self.send_command('vfeed alpha {0} 1'.format(self.program))
         self.send_command('tcl eval SetFeedToOverlay {0} {1}'.format(self.program, self.preview))
+
+    def transition(self, duration=0.25):
+        frames = math.ceil(duration * self.framerate)
+        delta = 1. / frames
+        self.send_command('vfeed move alpha {0} {1} {2}'.format(self.preview, delta, frames))
+        time.sleep(duration)
+        self.set_program()
 
     def send_command(self, command, responds=False):
         self.snowmix.send(bytearray(command + '\n','utf-8'))

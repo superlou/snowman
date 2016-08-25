@@ -38,6 +38,8 @@ class SnowmanApp(App):
                 self.preview(keycode_text)
         elif keycode_text is 'enter':
             self.take()
+        elif keycode_text is '\\':
+            self.manager.transition()
 
         return True
 
