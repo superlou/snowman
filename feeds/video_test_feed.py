@@ -11,12 +11,15 @@ class VideoTestFeed(Feed):
     def __init__(self, name, width, height, framerate):
         super().__init__(name)
 
-        src = self.add_element('videotestsrc')
+        self.src = self.add_element('videotestsrc')
         convert = self.add_element('videoconvert')
-        src.link(convert)
+        self.src.link(convert)
 
         self.add_video_shmsink(convert, width, height, framerate)
 
+    def set_pattern(self, enum_value):
+        if (enum_value < 25):
+            self.src.set_property('pattern', enum_value)
 
 if __name__ == "__main__":
     os.environ["GST_DEBUG"] = '2'
