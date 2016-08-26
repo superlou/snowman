@@ -32,6 +32,9 @@ class SnowmanApp(App):
     def _on_keyboard_down(self, keyboard, keycode, text, modifiers):
         keycode_text = keycode[1]
         if keycode_text in [str(i) for i in range(10)]:
+            if keycode_text is '0':
+                keycode_text = '10'
+
             if 'shift' in modifiers:
                 self.take(keycode_text)
             else:
