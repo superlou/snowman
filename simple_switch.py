@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 from manager.manager import Manager
 from gui import SnowmanApp
 from feeds import V4L2Feed, VideoTestFeed
