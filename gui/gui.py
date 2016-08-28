@@ -18,18 +18,18 @@ class BusButton(Button):
         super().__init__(**kwargs)
 
     def on_is_preview(self, instance, value):
-        self.compute_fill()
+        self.fill = self.compute_fill()
 
     def on_is_program(self, instance, value):
-        self.compute_fill()
+        self.fill = self.compute_fill()
 
     def compute_fill(self):
         if self.is_program:
-            self.fill = [1, 0, 0, 1]
+            return [1, 0, 0, 1]
         elif self.is_preview:
-            self.fill = [0, 1, 0, 1]
+            return [0, 1, 0, 1]
         elif not self.is_preview:
-            self.fill = [0.8, 0.8, 0.8, 1]
+            return [0.8, 0.8, 0.8, 1]
 
 class MainBus(StackLayout):
     preview_feed = NumericProperty()
