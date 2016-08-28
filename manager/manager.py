@@ -5,7 +5,7 @@ import math
 
 
 class Manager(object):
-    def __init__(self, host='localhost', port=9999):
+    def __init__(self, host='localhost', port=9999, callback=None):
         snowmix = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.snowmix = snowmix
 
@@ -19,7 +19,15 @@ class Manager(object):
         self.framerate = 30.
         self.preview = 1
         self.program = 2
+        self.callback = callback
         self.update_main_bus()
+
+    def subscribe(self, callback):
+        self.callback = callback
+
+    def notify(self, msg, value):
+        if self.callback:
+            self.callback(msg, value)
 
     def set_preview(self, feed):
         self.preview = feed
@@ -37,6 +45,9 @@ class Manager(object):
         self.send_command('vfeed alpha {0} 0'.format(self.preview))
         self.send_command('vfeed alpha {0} 1'.format(self.program))
         self.send_command('tcl eval SetFeedToOverlay {0} {1}'.format(self.program, self.preview))
+
+        self.notify('set_preview', self.preview)
+        self.notify('set_program', self.program)
 
     def transition(self, duration=0.25):
         frames = math.ceil(duration * self.framerate)
