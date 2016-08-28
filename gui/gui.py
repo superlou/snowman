@@ -45,6 +45,13 @@ class MainBus(StackLayout):
             self.add_widget(button)
             self.feed_buttons.append(button)
 
+        self._keyboard = Window.request_keyboard(self._keyboard_closed, self)
+        self._keyboard.bind(on_key_down=App.get_running_app()._on_keyboard_down)
+
+    def _keyboard_closed(self):
+        self._keyboard.unbind(on_key_down=self._on_keyboard_down)
+        self._keyboard = None
+
     def on_preview_feed(self, instance, value):
         for feed_button in self.feed_buttons:
             if str(value) == feed_button.text:
@@ -67,14 +74,6 @@ class SnowmanApp(App):
         super().__init__()
         self.manager = manager
         self.manager.subscribe(self.on_manager_event)
-
-        # todo https://groups.google.com/forum/#!topic/kivy-users/8My4m9PfJo8
-        self._keyboard = Window.request_keyboard(self._keyboard_closed, self)
-        self._keyboard.bind(on_key_down=self._on_keyboard_down)
-
-    def _keyboard_closed(self):
-        self._keyboard.unbind(on_key_down=self._on_keyboard_down)
-        self._keyboard = None
 
     def _on_keyboard_down(self, keyboard, keycode, text, modifiers):
         keycode_text = keycode[1]
