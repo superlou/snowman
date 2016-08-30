@@ -20,7 +20,35 @@ class Manager(object):
         self.preview = 1
         self.program = 2
         self.callback = callback
+        self.dsk_feeds = [5, 6, 7, 8]
+        self.active_dsks = []
+        self.hide_all_dsks()
         self.update_main_bus()
+
+    def hide_all_dsks(self):
+        for dsk_feed in self.dsk_feeds:
+            self.send_command('vfeed alpha {} 0'.format(dsk_feed))
+
+        self.active_dsks = []
+
+    def cut_in_dsk(self, dsk_id):
+        self.send_command('vfeed alpha {} 1'.format(self.dsk_feeds[dsk_id]))
+        self.active_dsks.append(dsk_id)
+        self.notify('set_active_dsks', self.active_dsks)
+
+    def cut_out_dsk(self, dsk_id):
+        self.send_command('vfeed alpha {} 0'.format(self.dsk_feeds[dsk_id]))
+        self.active_dsks = [dsk for dsk in self.active_dsks if dsk != dsk_id]
+        self.notify('set_active_dsks', self.active_dsks)
+
+    def dsk_is_active(self, dsk_id):
+        return (dsk_id in self.active_dsks)
+
+    def toggle_dsk(self, dsk_id):
+        if self.dsk_is_active(dsk_id):
+            self.cut_out_dsk(dsk_id)
+        else:
+            self.cut_in_dsk(dsk_id)
 
     def subscribe(self, callback):
         self.callback = callback
@@ -44,7 +72,10 @@ class Manager(object):
     def update_main_bus(self):
         self.send_command('vfeed alpha {0} 0'.format(self.preview))
         self.send_command('vfeed alpha {0} 1'.format(self.program))
-        self.send_command('tcl eval SetFeedToOverlay {0} {1}'.format(self.program, self.preview))
+        self.send_command('tcl eval SetFeedToOverlay {0} {1} {2}'.format(
+                          self.program,
+                          self.preview,
+                          " ".join([str(feed) for feed in self.dsk_feeds])))
 
         self.notify('set_preview', self.preview)
         self.notify('set_program', self.program)
@@ -52,7 +83,11 @@ class Manager(object):
     def transition(self, duration=0.25):
         frames = math.ceil(duration * self.framerate)
         delta = 1. / frames
-        self.send_command('vfeed move alpha {0} {1} {2}'.format(self.preview, delta, frames))
+        self.send_command('vfeed move alpha {0} {1} {2} {3}'.format(
+                          self.preview,
+                          delta,
+                          frames,
+                          " ".join([str(feed) for feed in self.dsk_feeds])))
         time.sleep(duration)
         self.set_program()
 

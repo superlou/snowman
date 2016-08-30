@@ -10,12 +10,12 @@
    xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="640"
-   height="480"
+   width="1280"
+   height="720"
    id="svg2"
    version="1.1"
-   inkscape:version="0.48.4 r9939"
-   sodipodi:docname="lower_third.svg">
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="live.svg">
   <defs
      id="defs4">
     <linearGradient
@@ -48,13 +48,13 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1"
-     inkscape:cx="312.2166"
-     inkscape:cy="228.8687"
+     inkscape:cx="470.54835"
+     inkscape:cy="434.81324"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1918"
-     inkscape:window-height="1030"
+     inkscape:window-width="1920"
+     inkscape:window-height="1026"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1" />
@@ -74,36 +74,36 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(0,-572.36218)">
+     transform="translate(0,-332.36218)">
     <rect
        style="opacity:0.9;fill:#ff7a20;fill-opacity:0.90196078;stroke:none"
        id="rect3014"
-       width="74.341568"
-       height="31.5"
-       x="64.346718"
-       y="611.50854"
+       width="118.61598"
+       height="50.259949"
+       x="104.92512"
+       y="383.82016"
        rx="0"
        ry="0" />
     <rect
        ry="0"
        rx="0"
-       y="611.50854"
-       x="-1.4142135"
-       height="31.5"
-       width="66.209839"
+       y="383.82016"
+       x="2.383014e-08"
+       height="50.259949"
+       width="105.64137"
        id="rect3006"
        style="opacity:0.9;fill:#e84912;fill-opacity:1;stroke:none" />
     <text
        sodipodi:linespacing="125%"
        id="text3008"
-       y="633.26422"
-       x="78.183784"
-       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Sans"
+       y="418.5325"
+       x="127.00291"
+       style="font-style:normal;font-weight:normal;font-size:63.82215881px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none"
        xml:space="preserve"><tspan
          id="tspan3010"
-         style="font-size:20px;font-weight:bold;-inkscape-font-specification:Sans Bold"
-         y="633.26422"
-         x="78.183784"
+         style="font-weight:bold;font-size:31.91107941px;-inkscape-font-specification:'Sans Bold'"
+         y="418.5325"
+         x="127.00291"
          sodipodi:role="line">LIVE</tspan></text>
   </g>
 </svg>

@@ -5,9 +5,39 @@ from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 from kivy.uix.widget import Widget
 from kivy.uix.button import Button
+from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.stacklayout import StackLayout
 from kivy.modules import inspector
-from kivy.properties import BooleanProperty, ListProperty, NumericProperty
+from kivy.properties import BooleanProperty, ListProperty, NumericProperty, StringProperty
+
+class DskButton(Button):
+    fill = ListProperty([0.8, 0.8, 0.8, 1])
+    dsk_id = NumericProperty()
+    is_active = BooleanProperty(False)
+
+    def on_is_active(self, instance, value):
+        if self.is_active:
+            self.fill = [1, 0, 0, 1]
+        else:
+            self.fill = [0.8, 0.8, 0.8, 1]
+
+class DskControls(StackLayout):
+    active_dsks = ListProperty([])
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.dsk_buttons = []
+        for i in range(4):
+            text = "DSK" + str(i + 1)
+            id = "dsk_button_{}".format(i)
+            button = DskButton(text=text, id=id, dsk_id=i)
+            self.add_widget(button)
+            self.dsk_buttons.append(button)
+
+    def on_active_dsks(self, instance, value):
+        print(value)
+        for dsk_button in self.dsk_buttons:
+            dsk_button.is_active = (dsk_button.dsk_id in value)
 
 class BusButton(Button):
     is_preview = BooleanProperty(False)
@@ -69,6 +99,7 @@ class MainBus(StackLayout):
 class SnowmanApp(App):
     preview_feed = NumericProperty(1)
     program_feed = NumericProperty(2)
+    active_dsks = ListProperty([])
 
     def __init__(self, manager):
         super().__init__()
@@ -97,6 +128,8 @@ class SnowmanApp(App):
             self.preview_feed = value
         elif type == 'set_program':
             self.program_feed = value
+        elif type == 'set_active_dsks':
+            self.active_dsks = value
 
     def take(self, feed=None):
         print("take", feed)
@@ -108,3 +141,7 @@ class SnowmanApp(App):
     def preview(self, feed):
         print('preview', feed)
         self.manager.set_preview(int(feed))
+
+    def toggleDsk(self, dsk_id):
+        print('toggle DSK with fade', dsk_id)
+        self.manager.toggle_dsk(dsk_id)

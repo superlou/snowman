@@ -17,6 +17,12 @@ class Feed(object):
 
         self.pipeline.set_state(Gst.State.PLAYING)
 
+    def stop(self):
+        if os.path.exists(self.control_pipe_name):
+            os.remove(self.control_pipe_name)
+
+        self.pipeline.set_state(Gst.State.NULL)
+
     def add_element(self, element_name):
         element = Gst.ElementFactory.make(element_name, None)
         self.pipeline.add(element)

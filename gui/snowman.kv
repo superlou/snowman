@@ -1,11 +1,21 @@
 BoxLayout:
+  orientation: 'vertical'
   MainBus
     preview_feed: app.preview_feed
     program_feed: app.program_feed
+  DskControls
+    active_dsks: app.active_dsks
 
 <BusButton>:
   width: 100
   height: 100
   size_hint: None, None
   on_press: app.preview(self.text)
+  background_color: self.fill
+
+<DskButton>:
+  width: 100
+  height: 100
+  size_hint: None, None
+  on_press: app.toggleDsk(self.dsk_id)
   background_color: self.fill

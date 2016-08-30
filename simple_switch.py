@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 from manager.manager import Manager
 from gui import SnowmanApp
-from feeds import V4L2Feed, VideoTestFeed
+from feeds import V4L2Feed, VideoTestFeed, SvgFeed, ImageFeed, DskFeed
 
 import gi
 gi.require_version('Gst', '1.0')
@@ -21,6 +21,14 @@ if __name__ == "__main__":
     f4 = VideoTestFeed('feed4', 1280, 720, '30/1')
     f4.play()
     f4.set_pattern(18)
+
+    f5 = DskFeed('feed5', 1280, 720, '30/1')
+    f5.create_slide('media/lower_third.svg', {'line1': 'New Headline'})
+    f5.select_slide(0)
+
+    f5 = DskFeed('feed6', 1280, 720, '30/1')
+    f5.create_slide('media/live.svg')
+    f5.select_slide(0)
 
     manager = Manager('localhost', 9999)
     SnowmanApp(manager).run()
