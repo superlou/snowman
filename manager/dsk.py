@@ -6,3 +6,4 @@ class Dsk(object):
         Dsk.next_id += 1
         self.feed_id = feed_id
         self.active = False
+        self.transition_duration = 0.25
