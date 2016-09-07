@@ -4,6 +4,7 @@ import time
 import math
 import zmq
 import json
+from .dsk import Dsk
 
 
 class Manager(object):
@@ -23,8 +24,7 @@ class Manager(object):
         self.framerate = 30.
         self.preview = 1
         self.program = 2
-        self.dsk_feeds = [5, 6, 7, 8]
-        self.active_dsks = []
+        self.dsks = [Dsk(feed_id) for feed_id in [5, 6, 7, 8]]
         self.hide_all_dsks()
         self.update_main_bus()
 
@@ -68,26 +68,29 @@ class Manager(object):
         return snowmix
 
     def hide_all_dsks(self):
-        for dsk_feed in self.dsk_feeds:
-            self.send_command('vfeed alpha {} 0'.format(dsk_feed))
+        for dsk_feed in self.dsks:
+            self.send_command('vfeed alpha {} 0'.format(dsk_feed.feed_id))
 
         self.active_dsks = []
 
     def cut_in_dsk(self, dsk_id):
-        self.send_command('vfeed alpha {} 1'.format(self.dsk_feeds[dsk_id]))
-        self.active_dsks.append(dsk_id)
-        self.notify('active_dsks', self.active_dsks)
+        self.send_command('vfeed alpha {} 1'.format(self.dsks[dsk_id].feed_id))
+        self.dsks[dsk_id].active = True
+        self.notify('active_dsks', self.get_active_dsk_ids())
 
     def cut_out_dsk(self, dsk_id):
-        self.send_command('vfeed alpha {} 0'.format(self.dsk_feeds[dsk_id]))
-        self.active_dsks = [dsk for dsk in self.active_dsks if dsk != dsk_id]
-        self.notify('active_dsks', self.active_dsks)
+        self.send_command('vfeed alpha {} 0'.format(self.dsks[dsk_id].feed_id))
+        self.dsks[dsk_id].active = False
+        self.notify('active_dsks', self.get_active_dsk_ids())
 
-    def dsk_is_active(self, dsk_id):
-        return (dsk_id in self.active_dsks)
+    def get_active_dsk_ids(self):
+        return [feed.id for feed in self.dsks if feed.active]
+
+    def build_dsk_feeds_list(self):
+        return " ".join([str(feed.feed_id) for feed in self.dsks])
 
     def toggle_dsk(self, dsk_id):
-        if self.dsk_is_active(dsk_id):
+        if self.dsks[dsk_id].active:
             self.cut_out_dsk(dsk_id)
         else:
             self.cut_in_dsk(dsk_id)
@@ -116,7 +119,8 @@ class Manager(object):
         self.send_command('tcl eval SetFeedToOverlay {0} {1} {2}'.format(
                           self.program,
                           self.preview,
-                          " ".join([str(feed) for feed in self.dsk_feeds])))
+                          self.build_dsk_feeds_list()
+                          ))
 
         self.notify('preview', self.preview)
         self.notify('program', self.program)
@@ -128,7 +132,9 @@ class Manager(object):
                           self.preview,
                           delta,
                           frames,
-                          " ".join([str(feed) for feed in self.dsk_feeds])))
+                          self.build_dsk_feeds_list()
+                          ))
+
         time.sleep(duration)
         self.set_program()
 
