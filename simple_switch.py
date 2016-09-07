@@ -2,11 +2,16 @@
 from manager.manager import Manager
 from gui import SnowmanApp
 from feeds import V4L2Feed, VideoTestFeed, SvgFeed, ImageFeed, DskFeed
+import multiprocessing
 
 import gi
 gi.require_version('Gst', '1.0')
 from gi.repository import Gst
 
+
+def create_manager():
+    manager = Manager(('localhost', 9999))
+    manager.start()
 
 if __name__ == "__main__":
     Gst.init(None)
@@ -30,5 +35,5 @@ if __name__ == "__main__":
     f5.create_slide('media/live.svg')
     f5.select_slide(0)
 
-    manager = Manager('localhost', 9999)
-    SnowmanApp(manager).run()
+    multiprocessing.Process(target=create_manager).start()
+    SnowmanApp().run()

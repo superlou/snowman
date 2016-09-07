@@ -9,6 +9,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.stacklayout import StackLayout
 from kivy.modules import inspector
 from kivy.properties import BooleanProperty, ListProperty, NumericProperty, StringProperty
+from .manager_connection import ManagerConnection
 
 class DskButton(Button):
     fill = ListProperty([0.8, 0.8, 0.8, 1])
@@ -96,15 +97,18 @@ class MainBus(StackLayout):
             else:
                 feed_button.is_program = False
 
+
 class SnowmanApp(App):
     preview_feed = NumericProperty(1)
     program_feed = NumericProperty(2)
     active_dsks = ListProperty([])
 
-    def __init__(self, manager):
+    def __init__(self):
         super().__init__()
-        self.manager = manager
-        self.manager.subscribe(self.on_manager_event)
+        self.manager = ManagerConnection(5555, 5556, self.on_manager_update)
+
+    def on_stop(self):
+        self.manager.send({'action': 'quit'})
 
     def _on_keyboard_down(self, keyboard, keycode, text, modifiers):
         keycode_text = keycode[1]
@@ -119,29 +123,26 @@ class SnowmanApp(App):
         elif keycode_text is 'enter':
             self.take()
         elif keycode_text is '\\':
-            self.manager.transition()
+            self.manager.send({'action': 'transition'})
 
         return True
 
-    def on_manager_event(self, type, value):
-        if type == 'set_preview':
+    def on_manager_update(self, type, value):
+        if type == 'preview':
             self.preview_feed = value
-        elif type == 'set_program':
+        elif type == 'program':
             self.program_feed = value
-        elif type == 'set_active_dsks':
+        elif type == 'active_dsks':
             self.active_dsks = value
 
     def take(self, feed=None):
-        print("take", feed)
         if feed:
-            self.manager.set_program(int(feed))
-        else:
-            self.manager.set_program()
+            feed = int(feed)
+
+        self.manager.send({'action': 'set_program', 'feed': feed})
 
     def preview(self, feed):
-        print('preview', feed)
-        self.manager.set_preview(int(feed))
+        self.manager.send({'action': 'set_preview', 'feed': int(feed)})
 
     def toggleDsk(self, dsk_id):
-        print('toggle DSK with fade', dsk_id)
-        self.manager.toggle_dsk(dsk_id)
+        self.manager.send({'action': 'toggle_dsk', 'dsk_id': dsk_id})

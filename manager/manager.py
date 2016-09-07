@@ -2,28 +2,70 @@ import socket
 import re
 import time
 import math
+import zmq
+import json
 
 
 class Manager(object):
-    def __init__(self, host='localhost', port=9999, callback=None):
-        snowmix = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.snowmix = snowmix
+    def __init__(self, snowmix_address):
+        self.snowmix_address = snowmix_address
+        self.snowmix = self.connect_to_snowmix(snowmix_address)
 
-        try:
-            snowmix.connect((host, port))
-        except:
-            print("Unable to connect to Snowmix at {0}:{1}".format(host, port))
+        context = zmq.Context()
+        socket = context.socket(zmq.REP)
+        socket.bind("tcp://*:5555")
+        self.server_socket = socket
 
-        self.snowmix.recv(4096)  # Clear out version string
+        socket = context.socket(zmq.PUB)
+        socket.bind("tcp://*:5556")
+        self.publisher_socket = socket
 
         self.framerate = 30.
         self.preview = 1
         self.program = 2
-        self.callback = callback
         self.dsk_feeds = [5, 6, 7, 8]
         self.active_dsks = []
         self.hide_all_dsks()
         self.update_main_bus()
+
+    def start(self):
+        keep_running = True
+
+        while keep_running:
+            message = self.server_socket.recv_json()
+            print('message:', message)
+
+            if 'action' in message:
+                action = message['action']
+
+                if action == 'transition':
+                    self.transition()
+                elif action == 'set_program':
+                    self.set_program(message['feed'])
+                elif action == 'set_preview':
+                    self.set_preview(message['feed'])
+                elif action == 'toggle_dsk':
+                    self.toggle_dsk(message['dsk_id'])
+                elif action == 'quit':
+                    keep_running = False
+                    self.publish_json({'action': 'quit'})
+
+            self.server_socket.send_json({'response': 'ok'})
+
+    def publish_json(self, obj):
+        message = bytes(json.dumps(obj), 'utf-8')
+        self.publisher_socket.send_multipart([b'main', message])
+
+    def connect_to_snowmix(self, address):
+        snowmix = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+        try:
+            snowmix.connect(address)
+        except:
+            print("Unable to connect to Snowmix at {0}:{1}".format(*address))
+
+        snowmix.recv(4096)  # Clear out version string
+        return snowmix
 
     def hide_all_dsks(self):
         for dsk_feed in self.dsk_feeds:
@@ -34,12 +76,12 @@ class Manager(object):
     def cut_in_dsk(self, dsk_id):
         self.send_command('vfeed alpha {} 1'.format(self.dsk_feeds[dsk_id]))
         self.active_dsks.append(dsk_id)
-        self.notify('set_active_dsks', self.active_dsks)
+        self.notify('active_dsks', self.active_dsks)
 
     def cut_out_dsk(self, dsk_id):
         self.send_command('vfeed alpha {} 0'.format(self.dsk_feeds[dsk_id]))
         self.active_dsks = [dsk for dsk in self.active_dsks if dsk != dsk_id]
-        self.notify('set_active_dsks', self.active_dsks)
+        self.notify('active_dsks', self.active_dsks)
 
     def dsk_is_active(self, dsk_id):
         return (dsk_id in self.active_dsks)
@@ -53,9 +95,8 @@ class Manager(object):
     def subscribe(self, callback):
         self.callback = callback
 
-    def notify(self, msg, value):
-        if self.callback:
-            self.callback(msg, value)
+    def notify(self, target, value):
+        self.publish_json({'update': target, 'value': value})
 
     def set_preview(self, feed):
         self.preview = feed
@@ -77,8 +118,8 @@ class Manager(object):
                           self.preview,
                           " ".join([str(feed) for feed in self.dsk_feeds])))
 
-        self.notify('set_preview', self.preview)
-        self.notify('set_program', self.program)
+        self.notify('preview', self.preview)
+        self.notify('program', self.program)
 
     def transition(self, duration=0.25):
         frames = math.ceil(duration * self.framerate)
