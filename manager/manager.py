@@ -40,6 +40,8 @@ class Manager(object):
 
                 if action == 'transition':
                     self.transition()
+                elif action == 'take':
+                    self.take()
                 elif action == 'set_program':
                     self.set_program(message['feed'])
                 elif action == 'set_preview':
@@ -126,11 +128,11 @@ class Manager(object):
         self.update_main_bus()
 
     def set_program(self, feed=None):
-        if feed:
-            self.program = feed
-        else:
-            self.program, self.preview = self.preview, self.program
+        self.program = feed
+        self.update_main_bus()
 
+    def take(self):
+        self.program, self.preview = self.preview, self.program
         self.update_main_bus()
 
     def update_main_bus(self):

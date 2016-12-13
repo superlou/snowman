@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 from manager.manager import Manager
-from gui import SnowmanApp
+#from gui import SnowmanApp
 from feeds import V4L2Feed, VideoTestFeed, SvgFeed, ImageFeed, DskFeed
 import multiprocessing
 
@@ -36,4 +36,4 @@ if __name__ == "__main__":
     f5.select_slide(0)
 
     multiprocessing.Process(target=create_manager).start()
-    SnowmanApp().run()
+    #SnowmanApp().run()
