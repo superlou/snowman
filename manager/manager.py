@@ -42,6 +42,8 @@ class Manager(object):
                     self.transition()
                 elif action == 'take':
                     self.take()
+                elif action == 'sync':
+                    self.sync()
                 elif action == 'set_program':
                     self.set_program(message['feed'])
                 elif action == 'set_preview':
@@ -53,6 +55,10 @@ class Manager(object):
                     self.publish_json({'action': 'quit'})
 
             self.server_socket.send_json({'response': 'ok'})
+
+    def sync(self):
+        self.notify('preview', self.preview)
+        self.notify('program', self.program)
 
     def publish_json(self, obj):
         message = bytes(json.dumps(obj), 'utf-8')
@@ -127,7 +133,7 @@ class Manager(object):
         self.preview = feed
         self.update_main_bus()
 
-    def set_program(self, feed=None):
+    def set_program(self, feed):
         self.program = feed
         self.update_main_bus()
 
@@ -150,11 +156,11 @@ class Manager(object):
     def transition(self, duration=0.25):
         frames = math.ceil(duration * self.framerate)
         delta = 1. / frames
-        self.send_command('vfeed move alpha {0} {1} {2}'.format(
-                          self.preview, delta, frames))
+        c = 'vfeed move alpha {0} {1} {2}'.format(self.preview, delta, frames)
+        self.send_command(c)
 
         time.sleep(duration)
-        self.set_program()
+        self.take()
 
     def send_command(self, command, responds=False):
         self.snowmix.send(bytearray(command + '\n','utf-8'))
