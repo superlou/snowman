@@ -29,6 +29,27 @@ class Manager(object):
         self.hide_all_dsks()
         self.update_main_bus()
 
+        self.feed_types = {}
+        self.feeds = [None] * 12
+
+    def register_feed_type(self, feed_class, name, play_after_create=True):
+        self.feed_types[name] = {
+            'class': feed_class,
+            'play_after_create': play_after_create
+        }
+
+    def create_feed(self, index, feed_type, *args):
+        snowmix_id = 'feed{}'.format(index + 1)
+        FeedClass = self.feed_types[feed_type]['class']
+        feed = FeedClass(snowmix_id, *args, 1280, 720, '30/1')
+        self.feeds[index] = feed
+
+        if self.feed_types[feed_type]['play_after_create']:
+            feed.play()
+
+        return feed
+
+
     def start(self):
         keep_running = True
 

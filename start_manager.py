@@ -1,37 +1,31 @@
 #!/usr/bin/python3
 from manager.manager import Manager
 from feeds import V4L2Feed, VideoTestFeed, SvgFeed, ImageFeed, DskFeed
-import multiprocessing
 
 import gi
 gi.require_version('Gst', '1.0')
 from gi.repository import Gst
 
 
-def create_manager():
-    manager = Manager(('localhost', 9999))
-    manager.start()
-
 if __name__ == "__main__":
     Gst.init(None)
 
-    V4L2Feed('feed1', '/dev/video0', 1280, 720, '30/1').play()
-    VideoTestFeed('feed2', 1280, 720, '30/1').play()
+    manager = Manager(('localhost', 9999))
+    manager.register_feed_type(V4L2Feed, 'v4l2')
+    manager.register_feed_type(VideoTestFeed, 'video_test')
+    manager.register_feed_type(DskFeed, 'dsk', play_after_create=False)
 
-    f3 = VideoTestFeed('feed3', 1280, 720, '30/1')
-    f3.play()
-    f3.set_pattern(1)
+    manager.create_feed(0, 'v4l2', '/dev/video0')
+    manager.create_feed(1, 'video_test')
+    manager.create_feed(2, 'video_test').set_pattern(1)
+    manager.create_feed(3, 'video_test').set_pattern(18)
 
-    f4 = VideoTestFeed('feed4', 1280, 720, '30/1')
-    f4.play()
-    f4.set_pattern(18)
+    dsk = manager.create_feed(8, 'dsk')
+    dsk.create_slide('media/lower_third.svg', {'line1': 'New Headline'})
+    dsk.select_slide(0)
 
-    f5 = DskFeed('feed9', 1280, 720, '30/1')
-    f5.create_slide('media/lower_third.svg', {'line1': 'New Headline'})
-    f5.select_slide(0)
+    dsk = manager.create_feed(9, 'dsk')
+    dsk.create_slide('media/live.svg')
+    dsk.select_slide(0)
 
-    f5 = DskFeed('feed10', 1280, 720, '30/1')
-    f5.create_slide('media/live.svg')
-    f5.select_slide(0)
-
-    multiprocessing.Process(target=create_manager).start()
+    manager.start()
