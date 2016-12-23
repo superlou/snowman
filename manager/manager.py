@@ -24,7 +24,7 @@ class Manager(object):
         self.framerate = 30.
         self.preview = 1
         self.program = 2
-        self.dsks = [Dsk(feed_id) for feed_id in [5, 6, 7, 8]]
+        self.dsks = [Dsk(feed_id) for feed_id in [9, 10, 11, 12]]
         self.hide_all_dsks()
         self.update_main_bus()
 
@@ -59,6 +59,7 @@ class Manager(object):
     def sync(self):
         self.notify('preview', self.preview)
         self.notify('program', self.program)
+        self.notify('active_dsks', self.get_active_dsk_ids())
 
     def publish_json(self, obj):
         message = bytes(json.dumps(obj), 'utf-8')

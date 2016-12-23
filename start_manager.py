@@ -26,11 +26,11 @@ if __name__ == "__main__":
     f4.play()
     f4.set_pattern(18)
 
-    f5 = DskFeed('feed5', 1280, 720, '30/1')
+    f5 = DskFeed('feed9', 1280, 720, '30/1')
     f5.create_slide('media/lower_third.svg', {'line1': 'New Headline'})
     f5.select_slide(0)
 
-    f5 = DskFeed('feed6', 1280, 720, '30/1')
+    f5 = DskFeed('feed10', 1280, 720, '30/1')
     f5.create_slide('media/live.svg')
     f5.select_slide(0)
 
